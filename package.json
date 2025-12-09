@@ -1,0 +1,83 @@
+{
+  "name": "sila-downloader",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/main/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:renderer\" \"wait-on http://localhost:3000 && npm run dev:electron\"",
+    "dev:renderer": "webpack serve --mode=development",
+    "dev:electron": "electron .",
+    "build": "webpack --mode=production",
+    "build:electron": "npm run build && electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.sila.downloader",
+    "win": {
+      "target": ["nsis", "portable"],
+      "icon": "src/assets/icon.png"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "src/assets/icon.png"
+    },
+    "dmg": {
+      "contents": [
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" },
+        { "x": 130, "y": 220, "type": "file" }
+      ]
+    },
+    "files": [
+      "dist/index.html",
+      "dist/bundle.js",
+      "src/**/*"
+    ]
+  },
+  
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "@babel/preset-react": "^7.23.0",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
+    "@tailwindcss/postcss": "^4.1.11",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.0",
+    "css-loader": "^7.1.2",
+    "electron": "^37.2.6",
+    "electron-devtools-installer": "^4.0.0",
+    "html-webpack-plugin": "^5.6.3",
+    "postcss": "^8.5.6",
+    "postcss-loader": "^8.1.1",
+    "react-refresh": "^0.17.0",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^4.1.11",
+    "wait-on": "^8.0.4",
+    "webpack": "^5.101.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "dependencies": {
+    "@floating-ui/react-dom": "^2.1.5",
+    "@tabler/icons-react": "^3.34.1",
+    "babel-loader": "^10.0.0",
+    "csp-html-webpack-plugin": "^5.1.0",
+    "dotenv": "^17.2.1",
+    "electron-store": "^10.1.0",
+    "firebase": "^12.1.0",
+    "fs": "^0.0.1-security",
+    "https": "^1.0.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router": "^7.8.0",
+    "sass": "^1.90.0",
+    "tailwind-scrollbar": "^4.0.2"
+  }
+}

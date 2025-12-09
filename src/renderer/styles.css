@@ -1,0 +1,485 @@
+@import "tailwindcss";
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --base-hue: 271;
+  --base-saturation: 50%;
+  --primary-button-color: hsl(var(--base-hue), var(--base-saturation), 50%);
+  --primary-button-color-hover: hsl(var(--base-hue), var(--base-saturation), 60%);
+  --neutral-button-color: hsl(var(--base-hue), 0, 50%);
+  --neutral-button-color-hover: hsl(var(--base-hue), 0, 60%);
+}
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-darkest: hsl(var(--base-hue), 10%, 0%);
+    --background-dark: hsl(var(--base-hue), 10%, 5%);
+    --background: hsl(var(--base-hue), 10%, 10%);
+    --background-light: hsl(var(--base-hue), 10%, 15%);
+    --background-lightest: hsl(var(--base-hue), 10%, 20%);
+    --text: hsl(var(--base-hue), 5%, 95%);
+    --primary-button-text: hsl(var(--base-hue), 5%, 95%);
+    --text-muted: hsl(var(--base-hue), 5%, 60%);
+    --dialog-background: hsl(var(--base-hue)  10%  60% / 0.2);
+    
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --background-darkest: hsl(var(--base-hue), 10%, 80%);
+    --background-dark: hsl(var(--base-hue), 10%, 85%);
+    --background: hsl(var(--base-hue), 10%, 90%);
+    --background-light: hsl(var(--base-hue), 10%, 95%);
+    --background-lightest: hsl(var(--base-hue), 10%, 100%);
+    --text: hsl(var(--base-hue), 5%, 5%);
+    --primary-button-text: hsl(var(--base-hue), 5%, 95%);
+    --text-muted: hsl(var(--base-hue), 5%, 40%);
+    --dialog-background: hsl(var(--base-hue)  10%  40% / 0.2);
+  }
+}
+
+@theme {
+  --color-primary: hsl(var(--base-hue), var(--base-saturation), 50%);
+  --color-primary-hover: hsl(var(--base-hue), var(--base-saturation), 60%);
+  --color-primary-button-text: hsl(var(--base-hue), 5%, 95%);
+  --color-muted: hsl(var(--base-hue), 5%, 60%);
+
+  --color-neutral: hsl(var(--base-hue), 0%, 40%);
+  --color-neutral-hover: hsl(var(--base-hue), 0%, 50%);
+  --color-neutral-button-text: hsl(var(--base-hue), 0%, 95%);
+  --color-neutral-muted: hsl(var(--base-hue), 0%, 60%);
+
+  
+  --color-lightest: var(--background-lightest);
+  --color-light: var(--background-light);
+  --color-medium: var(--background);
+  --color-dark: var(--background-dark);
+  --color-darkest: var(--background-darkest);
+
+}
+
+
+
+@layer utilities {
+  .text-color {
+    color: var(--text);
+  }
+  
+  .muted-text-color {
+    color: var(--text-muted);
+  }
+
+  .multi-select-checkbox {
+    @apply w-4 h-4;
+  }
+
+
+
+}
+
+@layer base {
+
+  body {
+    background-color: var(--background-dark);
+  }
+
+  * {
+    font-family: url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+  }
+
+
+  label {
+    @apply text-sm;
+    color: var(--text);
+  }
+
+  input {
+    @apply text-base/5 leading-none h-8 px-4;
+    color: var(--text);
+    background-color: var(--background-light);
+    border: 1px solid var(--text-muted);
+    border-radius: 4px;
+    outline: none;
+  }
+
+  input:focus {
+    border: 1px solid var(--primary-button-color);
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  h1 {
+    @apply text-xl/12 font-semibold;
+    color: var(--text);
+  }
+
+  h2 {
+    @apply text-base/10 font-medium;
+    color: var(--text);
+  }
+
+  p {
+    @apply text-base/5;
+    color: var(--text);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--primary-button-color);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2563eb;
+  }
+  
+}
+
+@layer components {
+
+  .outer-container {
+    height: calc(var(--vh, 1vh) * 100);
+    background: var(--background-dark);
+    @apply w-full flex justify-center;
+  }
+  
+  .inner-container {
+    background: var(--background);
+    @apply h-full w-full max-w-screen-md p-4 overflow-y-auto;
+  }
+
+  .card {
+    background-color: var(--background-light);
+    @apply p-4 rounded-md;
+  }
+
+  .error-card {
+    @apply py-2 px-4 rounded-md bg-red-900 text-white text-sm/5;
+  }
+
+/* Buttons sizes */
+
+  .tiny-icon-size {
+    @apply h-6 w-6 rounded-full flex items-center justify-center gap-4;
+
+    & > svg {
+      @apply size-6;
+    }
+  }
+
+  .small-icon-size {
+    @apply h-8 w-8 rounded-full flex items-center justify-center gap-4;
+
+    & > svg {
+      @apply size-6;
+    }
+  }
+
+  .icon-size {
+    @apply h-10 w-10 rounded-full flex items-center justify-center gap-4;
+
+    & > svg {
+      @apply size-8;
+    }
+  }
+
+  .big-icon-size {
+    @apply h-12 w-12 rounded-full flex items-center justify-center gap-2;
+  }
+
+  .small-size {
+    @apply h-8 px-2 rounded-md flex items-center justify-center gap-2;
+  }
+
+  .size {
+    @apply h-10 px-4 rounded-md flex items-center justify-center gap-2;
+  }
+
+  .big-size {
+    @apply h-12 px-4 rounded-md flex items-center justify-center gap-4;
+  }
+
+/* Buttons colors */
+
+  .neutral-colors {
+    @apply text-neutral-button-text bg-neutral;
+
+    & > p {
+      @apply text-neutral-button-text;
+    }
+  }
+
+  
+  .neutral-reversed-colors {
+    @apply text-neutral bg-neutral-button-text;
+
+    & > p {
+      @apply text-neutral;
+    }
+  }
+
+  .neutral-outline-colors {
+    @apply text-neutral border-neutral border-1;
+
+    & > p {
+      @apply text-neutral;
+    }
+  }
+
+  .primary-colors {
+    @apply text-primary-button-text bg-primary;
+
+    & > p {
+      @apply text-primary-button-text;
+    }
+  }
+
+  .reversed-colors {
+    @apply text-primary bg-primary-button-text;
+
+    & > p {
+      @apply text-primary;
+    }
+  }
+
+  .outline-colors {
+    @apply text-primary border-primary border-1;
+
+    & > p {
+      @apply text-primary;
+    }
+  }
+
+/* others */
+
+  .primary-button-big {
+    @apply text-base rounded-md leading-none h-12 px-4;
+    background-color: var(--primary-button-color);
+    color: var(--primary-button-text);
+  }
+
+  .primary-button-big:hover {
+    background-color: var(--primary-button-color-hover);
+  }
+
+  .primary-button {
+    @apply text-base rounded-md leading-none h-8 px-4;
+    background-color: var(--primary-button-color);
+    color: var(--primary-button-text);
+  }
+
+  .primary-button:hover {
+    background-color: var(--primary-button-color-hover);
+  }
+
+  .outline-button {
+    @apply text-base rounded-md leading-none h-8 px-4;
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--text);
+  }
+
+  .outline-button:hover {
+    background-color: var(--background-light);
+  }
+
+  .outline-button-small {
+    @apply text-sm rounded-md leading-none h-8 px-4;
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--text);
+  }
+
+  .outline-button-small:hover {
+    background-color: var(--background-light);
+  }
+
+  .primary-button-small {
+    @apply text-sm rounded-md leading-none h-8 px-4;
+    background-color: var(--primary-button-color);
+    color: var(--primary-button-text);
+  }
+  
+  .primary-button-small:hover {
+    background-color: var(--primary-button-color-hover);
+  }
+  
+  .icon-button {
+    @apply text-base rounded-full leading-none h-8 w-8 flex items-center justify-center;
+    background-color: var(--primary-button-color);
+    color: var(--primary-button-text);
+  }
+
+  .icon-button-big {
+    @apply text-base rounded-full leading-none h-10 w-10 flex items-center justify-center;
+    background-color: var(--primary-button-color);
+    color: var(--primary-button-text);
+  }
+
+  .icon-button-square {
+    @apply text-base rounded-md leading-none h-8 w-8 flex items-center justify-center;
+    background-color: var(--primary-button-color);
+    color: var(--primary-button-text);
+  }
+  
+  
+  .icon-button-square-big {
+    @apply text-base rounded-md leading-none h-10 w-10 flex items-center justify-center;
+    background-color: var(--primary-button-color);
+    color: var(--primary-button-text);
+  }
+
+  .transparent-icon-button {
+    @apply text-base rounded-full leading-none h-8 w-8 flex items-center justify-center;
+    background-color: transparent;
+    color: var(--text);
+  }
+  
+  
+  .icon-button:hover, .icon-button-big:hover, .icon-button-square:hover, .icon-button-square-big:hover {
+    background-color: var(--primary-button-color-hover);
+  }
+
+  .transparent-icon-button:hover {
+    background-color: var(--background-lightest);
+  }
+
+  .dropdown {
+    @apply inline-block;
+  }
+
+  .dropdown-toggle {
+    @apply cursor-pointer;
+  }
+
+  .dropdown-menu {
+    background-color: var(--background-lightest);
+    @apply w-48 rounded-md shadow-lg transition-opacity duration-200;
+  }
+
+  .dropdown-item {
+    color: var(--text);
+    @apply w-full text-left px-4 py-2 text-sm transition-colors duration-200;
+  }
+
+  .dropdown-item:hover, .dropdown-item:focus {
+    background-color: var(--background-darkest);
+    @apply outline-none;
+  }
+
+  .tag {
+    @apply text-xs rounded-md leading-none h-5 px-2 flex items-center justify-center;
+    background-color: var(--background-lightest);
+    color: var(--text-muted);
+  }
+
+  .card-title {
+    @apply text-lg/6;
+    color: var(--text);
+  }
+
+  .card-subtitle {
+    @apply text-sm;
+    color: var(--text-muted);
+  }
+
+  .card-content {
+    @apply text-sm;
+    color: var(--text);
+  }
+  
+  .dialog-screen {
+    @apply fixed inset-0 z-10 p-4 h-full w-full flex justify-center overflow-y-auto;
+    background-color: var(--dialog-background);
+    backdrop-filter: blur(5px);
+  }
+
+  .dialog-card {
+    background-color: var(--background-light);
+    @apply p-4 rounded-md max-w-full my-auto min-w-96;
+  }
+
+  .dialog-header {
+    @apply text-lg/6;
+    color: var(--text);
+  }
+
+  .dialog-body {
+    @apply text-sm;
+    color: var(--text);
+  }
+
+  .dialog-footer {
+    @apply flex justify-end gap-2 pt-6;
+    color: var(--text);
+  }
+
+  .file-input-container {
+    @apply flex items-center h-8 rounded-md cursor-pointer overflow-hidden;
+    background-color: var(--background-light);
+    border: 1px solid var(--text-muted);
+  }
+
+  .file-input-container:hover {
+    border-color: var(--primary-button-color);
+  }
+
+  .file-input-button {
+    @apply h-full flex items-center px-4 text-sm;
+    background-color: var(--background-lightest);
+    color: var(--text);
+    border-right: 1px solid var(--text-muted);
+  }
+
+  .file-input-filename {
+    @apply px-4 text-sm truncate;
+    color: var(--text-muted);
+  }
+ 
+  .collection-head {
+    @apply flex justify-between items-center pb-4;
+  }
+
+  .collection-title {
+    @apply text-lg py-2
+  }
+
+  .collection-head-operations {
+    @apply flex gap-2;
+  }
+
+
+  .side-menu {
+    @apply w-[400px] h-full flex flex-col gap-4;
+    background-color: var(--background-dark);
+  }
+
+  .menu-header {
+    @apply flex justify-between items-center p-2;
+  }
+
+  .menu-content {
+    @apply flex-1 min-h-0 flex-shrink flex flex-col gap-2 overflow-y-auto p-2;
+  }
+
+  .logo {
+    @apply text-xl font-bold;
+    color: var(--primary-button-color);
+  }
+}
+
+
+
+
