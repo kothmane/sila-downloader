@@ -15,6 +15,7 @@
   },
   "build": {
     "appId": "com.sila.downloader",
+    "publish": "never",
     "win": {
       "target": [
         "nsis",
