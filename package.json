@@ -27,22 +27,7 @@
         "dmg",
         "zip"
       ],
-      "icon": "src/assets/icon.png"
-    },
-    "dmg": {
-      "contents": [
-        {
-          "x": 410,
-          "y": 220,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 220,
-          "type": "file"
-        }
-      ]
+      "icon": "src/assets/icon.icns"
     },
     "files": [
       "dist/index.html",
