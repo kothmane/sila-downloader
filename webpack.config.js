@@ -58,7 +58,7 @@ export default {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
-    publicPath: '/', // Important for React Router
+    publicPath: './', // Important for React Router
   },
   plugins: [
     new HtmlWebpackPlugin({
