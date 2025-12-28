@@ -70,7 +70,7 @@ const checkUrl = async (url) => {
 }
 
 // a function to periodically check a condition and not resolve until the condition is met
-const waitForCondition = async ({condition, interval = 100, timeout = 10000}) => {
+const waitForCondition = async ({ condition, interval = 100, timeout = 10000 }) => {
   const startTime = Date.now();
   while (!condition()) {
     await new Promise(resolve => setTimeout(resolve, interval));
@@ -88,12 +88,12 @@ const processUpdates = (updates) => {
 
   // we will get rid of rudundant updates, we will reverse the list then only keep the first one and then reverse it again
   updates.reverse();
-  for (const {path, value} of updates) {
+  for (const { path, value } of updates) {
     // if the path is already in the processedUpdates, we will not add it again
     if (processedUpdates.some(update => update.path === path)) {
       continue;
     } else {
-      processedUpdates.push({path, value});
+      processedUpdates.push({ path, value });
     }
   }
 
@@ -107,7 +107,7 @@ class Downloader {
   constructor(mainWindow) {
     this.mainWindow = mainWindow;
     this.store = new Store();
-  
+
     const downloadFolder = this.store.get("downloadFolder");
     if (!downloadFolder) {
       console.log("no download folder set, setting to default");
@@ -126,7 +126,7 @@ class Downloader {
 
   }
 
-  updateStoreValue ({projectId, fileId, key, value}) {
+  updateStoreValue({ projectId, fileId, key, value }) {
     // first write to the store
     this.store.set(`downloadData.${projectId}.files.${fileId}.${key}`, value);
 
@@ -134,16 +134,16 @@ class Downloader {
     this.setDownloadDataValue(`${projectId}.files.${fileId}.${key}`, value);
 
   }
-  
+
   setDownloadDataValue(path, value) {
     if (typeof path !== "string" || !path.length) {
       console.error("Invalid path:", path);
       return;
     }
-  
+
     const parts = path.split(".");
     let current = this.downloadData;
-  
+
     for (let i = 0; i < parts.length - 1; i++) {
       if (current[parts[i]] === undefined) {
         console.error("Invalid path:", path);
@@ -159,20 +159,20 @@ class Downloader {
     }
 
     if (this.accumulate) {
-      this.accumulatedUpdates.push({path, value});
+      this.accumulatedUpdates.push({ path, value });
     }
   }
 
-  startSendingUpdates () {
+  startSendingUpdates() {
 
     this.accumulate = true;
     this.accumulatedUpdates = [];
-    
+
     this.mainWindow.webContents.send('set-download-data', this.downloadData);
 
     this.updateInterval = setInterval(() => {
       if (this.accumulatedUpdates.length > 0) {
-        
+
 
         this.mainWindow.webContents.send('send-download-updates', processUpdates(this.accumulatedUpdates));
         this.accumulatedUpdates = [];
@@ -180,7 +180,7 @@ class Downloader {
     }, 500);
   }
 
-  stopSendingUpdates () {
+  stopSendingUpdates() {
     this.accumulate = false;
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -192,19 +192,31 @@ class Downloader {
 
   // this function will be called on startup to prepare the data for the downloader
   // this function expands the data stored in the store to include the size of the file on disk and its download status
-  expand () {
+  expand() {
 
     this.downloadData = this.store.get("downloadData") || {};
 
     // for each project in downloadData, for each file in the project we will check if the size of the file is similar to size
     for (const [projectId, project] of Object.entries(this.downloadData)) {
+
+      // for each project we will make sure that the folder name does not include any invalid characters
+      const folderName = path.basename(project.folder_path)
+      console.log("base folder name", folderName);
+      if (/[\\/:*?"<>|]/.test(folderName)) {
+        const fallback_name = projectId;
+        this.store.set(`downloadData.${projectId}.folder_path`, path.join(this.store.get("downloadFolder"), fallback_name));
+        this.setDownloadDataValue(`${projectId}.folder_path`, path.join(this.store.get("downloadFolder"), fallback_name));
+        // also create the folder
+        fs.mkdirSync(this.store.get(`downloadData.${projectId}.folder_path`), { recursive: true });
+      }
+
       for (const [fileId, file] of Object.entries(project.files)) {
-        
+
         const filePath = this.getFilePath(projectId, file);
 
         // use file system to check the size of the file
         if (file.status != "completed") {
-          
+
           let fileSize = 0;
           try {
             if (fs.existsSync(filePath)) {
@@ -214,35 +226,35 @@ class Downloader {
             // If there's an error reading the file, treat it as non-existent
             fileSize = 0;
           }
-          
+
           // this file is not completed so we mark it as paused
           if (fileSize < file.size) {
             this.setDownloadDataValue(`${projectId}.files.${fileId}.status`, "paused");
             this.setDownloadDataValue(`${projectId}.files.${fileId}.sizeOnDisk`, fileSize);
           } else {
-            this.updateStoreValue({projectId, fileId, key: "status", value: "completed"});
-            this.updateStoreValue({projectId, fileId, key: "sizeOnDisk", value: fileSize});
+            this.updateStoreValue({ projectId, fileId, key: "status", value: "completed" });
+            this.updateStoreValue({ projectId, fileId, key: "sizeOnDisk", value: fileSize });
           }
         }
       }
     }
   }
 
-  pushToQueue (projectId, fileId) {
+  pushToQueue(projectId, fileId) {
     this.queue.push({ projectId, fileId, locked: false });
   }
 
-  removeFromQueue (fileId) {
+  removeFromQueue(fileId) {
     this.queue = this.queue.filter(file => file.fileId !== fileId);
   }
 
-  isInQueue (fileId) {
+  isInQueue(fileId) {
     return this.queue.some(file => file.fileId === fileId);
   }
 
 
   // this function needs to be atomic, it finds the unlocked files in the queue and starts dowloading them and locks them until there is four locked files
-  checkQueue () {
+  checkQueue() {
     // count already locked (in-progress) downloads
     let lockedFiles = this.queue.reduce((count, f) => count + (f.locked ? 1 : 0), 0);
 
@@ -259,7 +271,7 @@ class Downloader {
   }
 
   // this is the actual download function that will handle the downloading of the file
-  async startDownload (projectId, fileId) {
+  async startDownload(projectId, fileId) {
     try {
       const project = this.downloadData[projectId];
       const file = this.downloadData[projectId].files[fileId];
@@ -271,7 +283,7 @@ class Downloader {
 
       if (!hasValidUrl) {
         const newUrl = await this.getUrl(project.footage_id, fileId);
-        this.updateStoreValue({projectId, fileId, key: "url", value: newUrl});
+        this.updateStoreValue({ projectId, fileId, key: "url", value: newUrl });
       }
 
       // at this point we know the url is valid
@@ -346,7 +358,7 @@ class Downloader {
             if (file.status != "paused") {
               this.setDownloadDataValue(`${projectId}.files.${fileId}.status`, "error");
             }
-            try { fileStream.close(); } catch {}
+            try { fileStream.close(); } catch { }
             this.removeFromQueue(fileId);
             this.checkQueue();
           });
@@ -356,12 +368,12 @@ class Downloader {
           console.log("an error has occured 2", err)
 
           this.setDownloadDataValue(`${projectId}.files.${fileId}.status`, "error");
-          try { fileStream.close(); } catch {}
+          try { fileStream.close(); } catch { }
           this.removeFromQueue(fileId);
           this.checkQueue();
         });
 
-        
+
 
 
       } else if (fileSize >= file.size) {
@@ -373,10 +385,10 @@ class Downloader {
       console.log(error);
       console.error("startDownload error:", error?.message || error);
     }
-  
+
   }
 
-  getFilePath (projectId, file) {
+  getFilePath(projectId, file) {
     try {
       const project = this.downloadData[projectId];
       let filePath;
@@ -386,7 +398,7 @@ class Downloader {
       } else {
         filePath = path.join(project.folder_path, file.name);
       }
-      
+
       return filePath;
     } catch (error) {
       console.error("getFilePath error:", error?.message || error);
@@ -394,7 +406,7 @@ class Downloader {
     }
   }
 
-  start (projectId, fileId) {
+  start(projectId, fileId) {
     try {
       // check if its in the downloadData
       const file = this.downloadData[projectId].files[fileId];
@@ -415,7 +427,7 @@ class Downloader {
     }
   }
 
-  startMany (projectId, fileIds) {
+  startMany(projectId, fileIds) {
     try {
       const project = this.downloadData[projectId];
       if (!project) return;
@@ -433,7 +445,7 @@ class Downloader {
     }
   }
 
-  pause (projectId, fileId) {
+  pause(projectId, fileId) {
     try {
       // check if its in the downloadData
       const file = this.downloadData[projectId].files[fileId];
@@ -448,7 +460,7 @@ class Downloader {
     }
   }
 
-  pauseMany (projectId, fileIds) {
+  pauseMany(projectId, fileIds) {
     try {
       const project = this.downloadData[projectId];
       if (!project) return;
@@ -472,13 +484,13 @@ class Downloader {
     }
   }
 
-  download (project, file, category) {
+  download(project, file, category) {
     try {
       // check if its in the downloadData
       console.log(this.downloadData);
       const fileInData = this.downloadData?.[project._id]?.files?.[file._id];
       if (!fileInData)
-        this.createNewDownload({project, file, category});
+        this.createNewDownload({ project, file, category });
 
       this.start(project._id, file._id);
     } catch (error) {
@@ -486,17 +498,19 @@ class Downloader {
     }
   }
 
-  downloadMany (project, filesWithCategories) {
+  downloadMany(project, filesWithCategories) {
     try {
       if (!Array.isArray(filesWithCategories) || filesWithCategories.length === 0) return;
 
       // Ensure project exists
       if (!this.downloadData[project._id]) {
         const projectData = {
-          folder_path: path.join(this.store.get("downloadFolder"), project.name + "-" + project._id),
+          folder_path: path.join(this.store.get("downloadFolder"), this.folderNameForProject(project.name, project._id)),
           footage_id: project.footage._id,
           files: {}
         };
+        fsp.mkdir(projectData.folder_path, { recursive: true });
+
         this.setDownloadDataValue(`${project._id}`, projectData);
         this.store.set(`downloadData.${project._id}`, projectData);
       }
@@ -515,7 +529,15 @@ class Downloader {
     }
   }
 
-  async delete (projectId, fileId) {
+  folderNameForProject(projectName, projectId) {
+    // if the project name includes characters that windows or macos doesn't accept as part of folder name then lets use the id only (\ or / or : or * or ? or " or < or > or |) use regex to check
+    if (/[\\/:*?"<>|]/.test(projectName))
+      return projectId;
+    else
+      return projectName + "-" + projectId;
+  }
+
+  async delete(projectId, fileId) {
     try {
       // check if its in the downloadData
       const file = this.downloadData[projectId].files[fileId];
@@ -526,7 +548,7 @@ class Downloader {
       if (this.isInQueue(fileId)) {
         this.pause(projectId, fileId);
         // we wait for it to be paused
-        await waitForCondition({condition: () => !this.isInQueue(fileId), interval: 100, timeout: 10000});
+        await waitForCondition({ condition: () => !this.isInQueue(fileId), interval: 100, timeout: 10000 });
       }
 
       // delete the file from disk
@@ -545,7 +567,7 @@ class Downloader {
     }
   }
 
-  async deleteMany (projectId, fileIds) {
+  async deleteMany(projectId, fileIds) {
     try {
       const project = this.downloadData[projectId];
       if (!project) return;
@@ -574,7 +596,7 @@ class Downloader {
     }
   }
 
-  createNewDownload ({project, file, category}) {
+  createNewDownload({ project, file, category }) {
     try {
       // check if the project exists in the downloadData
       const projectIsInData = this.downloadData[project._id];
@@ -583,21 +605,23 @@ class Downloader {
       if (!projectIsInData) {
         // create the project
         const projectData = {
-          folder_path: path.join(this.store.get("downloadFolder"), project.name + "-" + project._id),
+          folder_path: path.join(this.store.get("downloadFolder"), this.folderNameForProject(project.name, project._id)),
           footage_id: project.footage._id,
           files: {}
         };
 
+        fsp.mkdir(projectData.folder_path, { recursive: true });
+
         this.setDownloadDataValue(`${project._id}`, projectData);
         this.store.set(`downloadData.${project._id}`, projectData);
       }
-      
+
       const fileName = file.name;
       const fileSize = file.size;
       const fileId = file._id;
       const fileCategory = category;
       const creationDate = Date.now();
-      
+
 
       // create the file
       const fileData = {
@@ -620,7 +644,7 @@ class Downloader {
     }
   }
 
-  async getUrl (footageId, fileId) {
+  async getUrl(footageId, fileId) {
     try {
       this.mainWindow.webContents.send('get-url', footageId, fileId);
 
